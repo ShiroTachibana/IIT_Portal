@@ -1,34 +1,41 @@
 <?php
-
 $host = "localhost";
-$fname = "root";
 $username = "root";
-$password = "";
-$idnum = "root";
+$password = ""; // Assuming no password is set for the root user
 $db_name = "iitportal";
 
+// Create connection
+$mysqli = new mysqli($host, $username, $password, $db_name);
 
-$mysqli = new mysqli("localhost", "root", "user");
-if ($mysqli -> connect_errno)
-{
- echo "Failed to connect MySQL: " . $mysqli -> connect_error ;
- exit();
+// Check connection
+if ($mysqli->connect_error) {
+    die("Connection failed: " . $mysqli->connect_error);
 }
-if ($con)
-{
-    $sql = "INSERT INTO 'user' (FullName, Username, Password, ID_NUMBER)
-    values('$fname', '$username', '$password', '$idnum')";
-    $result = mysqli_query($con, $sql);
-    if ($result)
-    {
-        echo "Registered Sucessfully!";
+
+// Check if form was submitted
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // Escape user inputs to prevent SQL injection
+    $fname = $mysqli->real_escape_string($_POST['fname']);
+    $password = $mysqli->real_escape_string($_POST['password']);
+    $idnum = $mysqli->real_escape_string($_POST['idnum']);
+    
+    // Hash the password
+    $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+    
+    // Perform insert query
+    $sql = "INSERT INTO user (FullName, pass, URole, ID_NUMBER) VALUES ('$fname', '$hashed_password', 'student', '$idnum')";
+    if ($mysqli->query($sql) === TRUE) {
+        echo '<script>
+        alert("Account has been created successfully");
+        window.location.href = "login.php";
+        </script>';
     } else {
-    die("Error". mysqli_error($con));
+        echo "Error: " . $sql . "<br>" . $mysqli->error;
     }
 }
 
-$fname = $_POST['fname'];
-$username = $_POST['username'];
-$password = $_POST['password'];
-$idnum = $_POST['idnum'];
+// Close connection
+$mysqli->close();
 ?>
+<!-- Move this script tag to the end of the body section -->
+<script src='https://cdn.jsdelivr.net/npm/sweetalert2@10'></script>

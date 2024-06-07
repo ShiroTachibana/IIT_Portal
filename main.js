@@ -143,3 +143,11 @@ function getPDF(){
       pdf.save("HTML-Document.pdf");
       });
 };
+//Textarea
+var textarea = document.getElementById('Textarea');
+var displayDiv = document.getElementById('displayContent');
+
+textarea.addEventListener('input', function() {
+  var content = this.value.replace(/\n/g, '<br>');
+  displayDiv.innerHTML = content;
+});
